@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZeroX | Статистика</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;900&display=swap" rel="stylesheet">
+    <style>
+        body { background-color: #050505; color: #ffffff; font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="antialiased">
+
+    <nav class="fixed w-full z-50 top-0 bg-black/90 backdrop-blur-md border-b border-neutral-900">
+        <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+            <a href="index.html" class="text-xl font-bold tracking-tighter uppercase">Zero<span class="text-neutral-500">X</span></a>
+            <div class="hidden md:flex space-x-8 text-sm font-medium text-neutral-400">
+                <a href="philosophy.html" class="hover:text-white transition-colors">Философия</a>
+                <a href="stats.html" class="text-white transition-colors">Статистика</a>
+            </div>
+            <a href="#" class="text-sm border border-neutral-800 px-4 py-2 rounded-full hover:bg-white hover:text-black transition-all">Войти</a>
+        </div>
+    </nav>
+
+    <main class="pt-28 pb-12 px-6 max-w-7xl mx-auto">
+        
+        <div class="flex justify-between items-end mb-8">
+            <div>
+                <h1 class="text-4xl font-bold">Performance</h1>
+                <p class="text-neutral-500 mt-1">Публичный мониторинг счета ZeroX Main.</p>
+            </div>
+            <div class="text-right hidden md:block">
+                <div class="text-sm text-neutral-400">Текущий баланс</div>
+                <div class="text-2xl font-mono text-white">$142,890.50</div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            <div class="bg-neutral-900/50 border border-neutral-800 p-4 rounded">
+                <div class="text-neutral-500 text-xs uppercase">Total Return</div>
+                <div class="text-xl font-bold text-green-400">+214.5%</div>
+            </div>
+            <div class="bg-neutral-900/50 border border-neutral-800 p-4 rounded">
+                <div class="text-neutral-500 text-xs uppercase">Win Rate</div>
+                <div class="text-xl font-bold">62.4%</div>
+            </div>
+            <div class="bg-neutral-900/50 border border-neutral-800 p-4 rounded">
+                <div class="text-neutral-500 text-xs uppercase">Profit Factor</div>
+                <div class="text-xl font-bold">2.81</div>
+            </div>
+            <div class="bg-neutral-900/50 border border-neutral-800 p-4 rounded">
+                <div class="text-neutral-500 text-xs uppercase">Max Drawdown</div>
+                <div class="text-xl font-bold text-red-400">-8.2%</div>
+            </div>
+        </div>
+
+        <div class="w-full h-[400px] border border-neutral-800 rounded p-4 bg-black mb-8 relative">
+            <canvas id="equityChart"></canvas>
+        </div>
+
+        <div class="border border-neutral-800 rounded overflow-hidden">
+            <div class="bg-neutral-900 px-6 py-4 border-b border-neutral-800 font-bold">
+                Monthly Returns 2024
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm text-neutral-400">
+                    <thead class="bg-black text-neutral-500 uppercase text-xs">
+                        <tr>
+                            <th class="px-6 py-3">Month</th>
+                            <th class="px-6 py-3">Trades</th>
+                            <th class="px-6 py-3 text-right">PnL %</th>
+                            <th class="px-6 py-3 text-right">Net Profit ($)</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-neutral-800">
+                        <tr class="hover:bg-neutral-900 transition-colors">
+                            <td class="px-6 py-4 text-white">October</td>
+                            <td class="px-6 py-4">24</td>
+                            <td class="px-6 py-4 text-right text-green-400">+12.4%</td>
+                            <td class="px-6 py-4 text-right text-white">+$15,200</td>
+                        </tr>
+                        <tr class="hover:bg-neutral-900 transition-colors">
+                            <td class="px-6 py-4 text-white">September</td>
+                            <td class="px-6 py-4">18</td>
+                            <td class="px-6 py-4 text-right text-green-400">+4.1%</td>
+                            <td class="px-6 py-4 text-right text-white">+$5,100</td>
+                        </tr>
+                        <tr class="hover:bg-neutral-900 transition-colors">
+                            <td class="px-6 py-4 text-white">August</td>
+                            <td class="px-6 py-4">21</td>
+                            <td class="px-6 py-4 text-right text-red-400">-1.2%</td>
+                            <td class="px-6 py-4 text-right text-white">-$1,450</td>
+                        </tr>
+                        <tr class="hover:bg-neutral-900 transition-colors">
+                            <td class="px-6 py-4 text-white">July</td>
+                            <td class="px-6 py-4">30</td>
+                            <td class="px-6 py-4 text-right text-green-400">+18.5%</td>
+                            <td class="px-6 py-4 text-right text-white">+$21,800</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const ctx = document.getElementById('equityChart').getContext('2d');
+        
+        // Градиент под линией
+        let gradient = ctx.createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(0, 'rgba(255, 255, 255, 0.2)');
+        gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+
+        const equityChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'],
+                datasets: [{
+                    label: 'Equity Growth',
+                    data: [10000, 12500, 11800, 14000, 18000, 22000, 28000, 27500, 35000, 42000],
+                    borderColor: '#ffffff',
+                    backgroundColor: gradient,
+                    borderWidth: 2,
+                    pointBackgroundColor: '#000000',
+                    pointBorderColor: '#ffffff',
+                    pointRadius: 4,
+                    fill: true,
+                    tension: 0.4 // Плавность линий
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }, // Скрыть легенду для минимализма
+                    tooltip: {
+                        backgroundColor: '#1a1a1a',
+                        titleColor: '#fff',
+                        bodyColor: '#ccc',
+                        borderColor: '#333',
+                        borderWidth: 1,
+                        displayColors: false
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false, color: '#333' },
+                        ticks: { color: '#666' }
+                    },
+                    y: {
+                        grid: { color: '#1a1a1a' },
+                        ticks: { color: '#666' }
+                    }
+                },
+                interaction: {
+                    intersect: false,
+                    mode: 'index',
+                },
+            }
+        });
+    </script>
+</body>
+</html>
